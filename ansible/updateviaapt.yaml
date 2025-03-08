@@ -1,0 +1,48 @@
+---
+- hosts: all
+  
+  become: true
+  tasks:
+    - name: autoremove packages
+      apt: 
+        autoremove: yes
+        update_cache: yes
+      register: resultrem
+
+    - name: send notification when autoremove failed
+      community.general.telegram:
+        token: 'TELEGRAM TOKEN'
+        api_args:
+          chat_id: CHAT ID
+          parse_mode: "markdown"
+          text: "{{ inventory_hostname }} apt is not autoremoved because of error"
+          disable_web_page_preview: true
+          disable_notifciation: true
+      when: resultrem.failed
+      
+    - name: autoclean packages
+      apt:
+        autoclean: yes
+      register: result
+
+    - name: send notification when autoclean failed
+      community.general.telegram:
+        token: 'TELEGRAM TOKEN'
+        api_args:
+          chat_id: CHAT ID
+          parse_mode: "markdown"
+          text: "{{ inventory_hostname }} apt is not cleaned because of error"
+          disable_web_page_preview: true
+          disable_notifciation: true
+      when: result.failed
+
+    - name: send notification when autoclean changed
+      community.general.telegram:
+        token: 'TELEGRAM TOKEN'
+        api_args:
+          chat_id: CHAT ID
+          parse_mode: "markdown"
+          text: "{{ inventory_hostname }} apt is cleaned"
+          disable_web_page_preview: true
+          disable_notifciation: true
+      when: result.changed
