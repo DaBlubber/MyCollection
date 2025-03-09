@@ -1,5 +1,5 @@
 ---
-- hosts: HOST
+- hosts: IP
   become: yes
   any_errors_fatal: true
   tasks:
