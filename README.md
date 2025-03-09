@@ -20,6 +20,8 @@ Welcome to my Collection for home lab automation repository! This collection of 
         * Specific configurations for certain devices.
 * **Docker Compose Files for Portainer:**
     * Various Compose files which are used on my docker structure
+* **Jenkins Pipelines:**
+    * Various Jenkins Pipelines to automate Backend Jobs
 
 ## Technology Stack
 
@@ -28,6 +30,8 @@ Welcome to my Collection for home lab automation repository! This collection of 
 * **Proxmix:** For Server Structure
 * **Synology:** For my central Storage
 * **Gitea:** For all my code
+* **Jenkins:** For central management of jobs with multiple steps
+
 
 ## Usage
 
