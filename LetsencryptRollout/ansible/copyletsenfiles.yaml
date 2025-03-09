@@ -1,0 +1,29 @@
+---
+- hosts: IP
+  become: yes
+  any_errors_fatal: true
+  tasks:
+    - name: Copy the script to copy files
+      copy: 
+        src: /etc/semaphore/copysslfiles.sh
+        dest: /tmp/copysslfiles.sh
+        mode: 0755
+
+    - name: Execute the script
+      command: /tmp/copysslfiles.sh
+
+    - name: Remove the script
+      file:
+        path: /tmp/copysslfiles.sh
+        state: absent
+
+    # DOMAIN Area
+    - name: Find all Files to Copy DOMAIN
+      shell: cd /usr/local/ssl; find | grep '\.pem' | cut -d'/' -f2
+      register: files_to_copy
+      
+    - name: Copy all found files
+      fetch:
+        src: /usr/local/ssl/{{ item }}
+        dest: /etc/semaphore/tmp
+      with_items: "{{ files_to_copy.stdout_lines }}"
