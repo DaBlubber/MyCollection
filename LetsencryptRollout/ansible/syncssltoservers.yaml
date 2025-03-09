@@ -1,0 +1,19 @@
+---
+- hosts: IP
+
+  become: yes
+  any_errors_fatal: true
+  tasks:
+    - name: Rsync Files to Server
+      copy: 
+        src: /etc/semaphore/rsynctoserver.sh
+        dest: /tmp/rsynctoserver.sh
+        mode: 0755
+
+    - name: Execute script rsync all files
+      command: /tmp/rsynctoserver.sh
+
+    - name: Remove the script
+      file:
+        path: /tmp/rsynctoserver.sh
+        state: absent
