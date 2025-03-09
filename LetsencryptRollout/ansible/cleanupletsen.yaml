@@ -1,0 +1,21 @@
+---
+- hosts: HOST
+  become: yes
+  any_errors_fatal: true
+  tasks:
+    # DOMAIN A Area
+    - name: Delete old entries tmp
+      shell: rm -r /usr/local/container/semaphore/tmp/IP/usr/local/ssl
+
+    - name: Check deletion DOMAIN
+      stat: 
+        path: /usr/local/container/semaphore/tmp/IP/usr/local/ssl/fullchain.pem
+      register: srvdeltmp_stat
+
+    - fail: msg="Deletion TMP not done"
+      when: srvdeltmp_stat.stat.exists
+
+    - name: Erstelle den Zielordner neu
+      file:
+        path: /usr/local/container/semaphore/tmp/IP/usr/local/ssl
+        state: directory
