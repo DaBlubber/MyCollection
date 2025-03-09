@@ -36,6 +36,7 @@ Some other Services that need updated Certificates
 * 7. Synchronize the new Let's Encrypt files to the target systems.
 * 8. Restart the necessary containers or services.
 * 9. Prepare the certificate files on my personal storage.
+* 10. Check if everthings works.
 
 ## Technology Stack
 
