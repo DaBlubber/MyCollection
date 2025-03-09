@@ -5,7 +5,6 @@
   vars:
     source_repo: "GIT1 URL"
     dest_repo: "GIT2 URL"
-    access_token: "{{ lookup('env', 'GIT TOKEN') }}"
     workdir: "/tmp/git_sync"
 
   tasks:
@@ -30,7 +29,7 @@
     - name: Initialize destination repository
       ansible.builtin.shell: |
         rm -rf {{ workdir }}/dest
-        git clone https://oauth2:{{ access_token }}@github.com/DaBlubber/MyCollection.git {{ workdir }}/dest
+        git clone https://GIT TOKEN@github.com/DaBlubber/MyCollection.git {{ workdir }}/dest
       args:
         executable: /bin/bash
 
@@ -44,10 +43,10 @@
       ansible.builtin.shell: |
         cd {{ workdir }}/dest
         git config user.name "Ansible Bot"
-        git config user.email "florian@nerdyadmins.de"
+        git config user.email "MAIL ADRESS"
         git add .
         git diff --quiet && git diff --staged --quiet || git commit -m "Automated sync from source repo"
-        git push --force https://{{ access_token }}@github.com/DaBlubber/MyCollection.git
+        git push --force https://GIT TOKEN@github.com/DaBlubber/MyCollection.git
       args:
         executable: /bin/bash
 
