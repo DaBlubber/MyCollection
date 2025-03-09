@@ -1,0 +1,18 @@
+---
+- hosts: TARGET IP
+
+  become: yes
+  any_errors_fatal: true
+  tasks:
+    - name: Delete old entries
+      file:
+        path: /etc/ssl/letsen/
+        state: absent
+
+    - name: Check deletion
+      stat: 
+        path: /etc/ssl/letsen/fullchain.pem
+      register: srvdel_stat
+
+    - fail: msg="Deletion not done"
+      when: srvdel_stat.stat.exists
