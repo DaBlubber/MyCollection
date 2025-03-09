@@ -1,0 +1,18 @@
+---
+- hosts: IP
+  become: yes
+  any_errors_fatal: true
+  tasks:
+    - name: Copy the script to copy files
+      copy: 
+        src: /etc/semaphore/preparesharessl.sh
+        dest: /tmp/preparesharessl.sh
+        mode: 0755
+
+    - name: Execute the script
+      command: /tmp/preparesharessl.sh
+
+    - name: Remove the script
+      file:
+        path: /tmp/preparesharessl.sh
+        state: absent
