@@ -1,0 +1,40 @@
+services:
+  ansible:
+    image: semaphoreui/semaphore:latest
+    container_name: semaphore
+    hostname: ansi.example.de
+    network_mode: bridge
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+      - SEMAPHORE_PLAYBOOK_PATH=/tmp/semaphore/
+      - SEMAPHORE_ADMIN_PASSWORD=PASSWORT
+      - SEMAPHORE_ADMIN_NAME=admin
+      - SEMAPHORE_ADMIN_EMAIL=admin@admin.de
+      - SEMAPHORE_ADMIN=admin
+      - ANSIBLE_HOST_KEY_CHECKING=false
+      - LANG=C.UTF-8
+      - SEMAPHORE_DB_DIALECT=mysql
+      - SEMAPHORE_DB_HOST=DB IP
+      - SEMAPHORE_DB_PORT=3306
+      - SEMAPHORE_DB=semaphore
+      - SEMAPHORE_DB_USER=DB USER
+      - SEMAPHORE_DB_PASS=DB USER PASSWORT
+      - GIT_SSL_NO_VERIFY=true
+      - SEMAPHORE_TELEGRAM_CHAT=CHAT ID
+      - SEMAPHORE_TELEGRAM_TOKEN=TOKEN
+      - SEMAPHORE_TELEGRAM_ALERT=true
+      - ANSIBLE_PERSISTENT_COMMAND_TIMEOUT=90
+      - SEMAPHORE_ACCESS_KEY_ENCRYPTION=
+    volumes:
+      - /usr/local/container/semaphore:/etc/semaphore
+      - /usr/local/container/semaphore/home:/home/semaphore
+      - /usr/local/container/semaphore/tmp:/tmp/letsen
+    ports:
+      - "4000:3000"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
