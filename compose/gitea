@@ -1,0 +1,29 @@
+services:
+  server:
+    image: gitea/gitea:latest
+    container_name: gitea
+    hostname: git.example.de
+    network_mode: bridge
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=mysql
+      - GITEA__database__HOST=DB IP + DB Port
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=DB USER
+      - GITEA__database__PASSWD=DB USER PASSWORT
+    restart: unless-stopped
+
+    volumes:
+      - /usr/local/container/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "922:22"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
