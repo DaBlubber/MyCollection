@@ -1,0 +1,32 @@
+---
+- hosts: IP
+  
+  become: yes
+  tasks:
+
+  - name: Copy the script
+    copy: 
+      src: /etc/semaphore/backupmariadb.sh
+      dest: /tmp/backupmariadb.sh
+      mode: 0755
+
+  - name: Execute the script
+    command: /tmp/backupmariadb.sh
+    ignore_errors: true
+    register: result
+
+  - name: Remove the script
+    file:
+      path: /tmp/backupmariadb.sh
+      state: absent
+
+  - name: send notification when db backup failed
+    community.general.telegram:
+      token: 'TOKEN'
+      api_args:
+        chat_id: CHAT ID
+        parse_mode: "markdown"
+        text: "MariaDB Backup failed"
+        disable_web_page_preview: true
+        disable_notifciation: true
+    when: result.failed
