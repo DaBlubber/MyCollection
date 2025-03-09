@@ -1,0 +1,16 @@
+services:
+ haproxy:
+    user: root
+    container_name: haproxy
+    image: haproxy:lts
+    hostname: prodproxy
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - /etc/ssl/letsen:/usr/local/etc/haproxy/letsen
+      - /usr/local/container/haproxy:/usr/local/etc/haproxy
