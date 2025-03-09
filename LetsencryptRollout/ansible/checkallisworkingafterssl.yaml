@@ -1,0 +1,48 @@
+---
+- name: Check HAProxy containers and website availability
+  hosts: IP
+  gather_facts: no
+
+  tasks:
+    - name: Check if HAProxy container is running
+      docker_container_info:
+        name: haproxy
+      delegate_to: "{{ item }}"
+      register: haproxy_status
+      ignore_errors: yes
+      loop:
+        - TARGET IP
+
+    - name: Fail if HAProxy is not running
+      fail:
+        msg: "HAProxy container is not running on {{ item.item }}"
+      when: not item.exists or item.container.State.Running == false
+      loop: "{{ haproxy_status.results }}"
+
+    - name: Check website availability
+      uri:
+        url: URL
+        method: GET
+        return_content: no
+        validate_certs: yes
+      register: site_status
+      ignore_errors: yes
+
+    - name: Fail if Site is not reachable
+      fail:
+        msg: "Site is not reachable"
+      when: site_status.status is not defined or site_status.status != 200
+
+    - name: Check website availability
+      uri:
+        url: Other URL
+        method: GET
+        return_content: no
+        validate_certs: yes
+      register: site2_status
+      ignore_errors: yes
+
+    - name: Fail if Site2 is not reachable
+      fail:
+        msg: "Site2 is not reachable"
+      when: site2_status.status is not defined or site2_status.status != 200
