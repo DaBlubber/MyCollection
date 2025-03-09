@@ -1,0 +1,770 @@
+pipeline {
+    agent any
+
+    environment {
+        RESTART_API_URL = 'SEMAPHORE URL/api/project/1/tasks'
+        API_TOKEN = 'SEMAPHORE TOKEN'
+    }
+
+    stages {
+		stage('Cleanup Old Letsencrypt Files') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 2}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 120 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+        stage('Copy Needed Letsencrypt Files') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 3}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 120 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+        stage('Rename Needed Letsencrypt Files') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 4}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+					
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 120 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+        stage('Delete Old SSL Files on Server') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 7}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 120 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+        stage('Delete Old SSL Files on Keycloak Server') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 8}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 120 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+		stage('Sync New Letsencrypt Files to Server') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 5}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 600 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+        stage('Restart All HAProxy Instances') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 9}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 120 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+        stage('Restart Keycloak Container') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 10}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 120 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+        stage('Update SSL On Prod Proxmox') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 6}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 120 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+		
+        stage('Prepare SSL For My File') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 11}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 240 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+        stage('Check If Everything works') {
+            steps {
+                script {
+                    def response = sh(script: """
+                        curl -s -XPOST \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        -H 'Authorization: Bearer ${API_TOKEN}' \
+                        -d '{"template_id": 1}' \
+                        ${RESTART_API_URL}
+                    """, returnStdout: true).trim()
+
+                    echo "Full API Response: ${response}"
+
+					sleep(2)
+
+                    def taskId = null
+                    try {
+                        taskId = new groovy.json.JsonSlurper().parseText(response).id
+                        echo "Task ID: ${taskId}"
+                    } catch (Exception e) {
+                        error "Failed to parse task ID from response: ${e.message}. Full Response: ${response}"
+                    }
+
+                    if (taskId == null) {
+                        error "Task ID is null. Check the API response for errors."
+                    }
+
+                    def status = ""
+                    def timeout = 240 // Timeout in Sekunden
+                    def startTime = System.currentTimeMillis()
+
+                    while (status != "success") {
+                        sleep(10)
+
+                        def statusResponse = sh(script: """
+                            curl -s -XGET \
+                            -H 'Authorization: Bearer ${API_TOKEN}' \
+                            ${RESTART_API_URL}/${taskId}
+                        """, returnStdout: true).trim()
+
+                        echo "Full Status Response: ${statusResponse}"
+
+                        try {
+                            status = new groovy.json.JsonSlurper().parseText(statusResponse).status
+                            echo "Current Status: ${status}"
+                        } catch (Exception e) {
+                            echo "Error parsing status: ${e.message}. Response: ${statusResponse}"
+                            status = null // Setze Status auf null, um die Schleife fortzusetzen
+                        }
+
+                        if (status == "FAILED") {
+                            error "Ansible Semaphore Task ${taskId} failed! Response: ${statusResponse}"
+                        }
+
+                        if (status == null || status.isEmpty()) {
+                            echo "Status is null or empty. Retrying..."
+                        }
+
+                        if (System.currentTimeMillis() - startTime > timeout * 1000) {
+                            error "Timeout waiting for Ansible Semaphore Task ${taskId} to complete. Response: ${statusResponse}"
+                        }
+                    }
+
+                    echo "Ansible Semaphore Task ${taskId} completed successfully!"
+                }
+            }
+        }
+
+    }
+}
