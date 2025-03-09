@@ -1,6 +1,5 @@
 services:
  haproxy:
-    user: root
     container_name: haproxy
     image: haproxy:lts
     hostname: prodproxy
