@@ -1,0 +1,19 @@
+---
+- hosts: TARGET IP
+
+  become: yes
+  any_errors_fatal: true
+  tasks:
+    - name: Graceful Restart HAProxy
+      shell: docker container restart haproxy
+      register: reloader
+
+    - name: send notification when haproxy reload is done
+      community.general.telegram:
+        token: TELEGRAM TOKEN
+        api_args:
+          chat_id: TELEGRAM CHAT ID
+          parse_mode: "markdown"
+          text: "{{ inventory_hostname }} HAProxy was reloaded"
+          disable_web_page_preview: true
+          disable_notifciation: true
