@@ -1,0 +1,12 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    network_mode: bridge
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=PASSWORT
+    volumes:
+      - /usr/local/container/mariadb:/var/lib/mysql
+    ports:
+      - "3306:3306"
