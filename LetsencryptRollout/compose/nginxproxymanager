@@ -1,0 +1,14 @@
+services:
+  nginxproxymanager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginxproxymanager
+    hostname: nginx
+    network_mode: bridge
+    ports:
+      - 81:81/tcp
+    environment:
+      - SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+    volumes:
+      - /usr/local/container/nginx/data:/data
+      - /usr/local/container/nginx/letsen:/etc/letsencrypt
+    restart: unless-stopped
