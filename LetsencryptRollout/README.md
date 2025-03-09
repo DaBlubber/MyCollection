@@ -25,6 +25,18 @@ Some other Services that need updated Certificates
 * **Git:**
     * Where all Playbooks, Pipelines, Bash Scripts and Compose Files are saved and updated.
 
+## Process
+
+* 1. Check the certificate files to see if the certificate is about to expire.
+* 2. If the certificate is nearing expiration, trigger the Jenkins job.
+* 3. Remove all old sync files.
+* 4. Copy the new Let's Encrypt files for preparation.
+* 5. Rename them for the respective use cases.
+* 6. Remove all old certificate files from the target systems.
+* 7. Synchronize the new Let's Encrypt files to the target systems.
+* 8. Restart the necessary containers or services.
+* 9. Prepare the certificate files on my personal storage.
+
 ## Technology Stack
 
 My Technology Readme is currently in construction
